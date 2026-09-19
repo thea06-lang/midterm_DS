@@ -1,0 +1,58 @@
+/**
+ * BubbleSort.java
+ *
+ * Standard Bubble Sort with the classic "stop early if nothing swapped"
+ * check. That check is what gives Bubble Sort its O(n) best case on
+ * data that's already sorted (or a bonus nearly-sorted dataset) — the
+ * same effect the plan notes for Insertion Sort, so it's worth
+ * mentioning in the group's comparison section.
+ *
+ * Rules followed (per the team plan):
+ *   - Takes an int[] and a Metrics object.
+ *   - Counts every comparison and every swap.
+ *   - Never touches Arrays.sort() / Collections.sort().
+ *   - Does not modify the caller's original array reference behavior —
+ *     whoever calls this should pass in their own copy of the dataset,
+ *     since sorting happens in place.
+ *
+ * Author: P2
+ */
+public class BubbleSort {
+
+    /**
+     * Sorts arr in place (ascending) and records comparisons, swaps,
+     * and runtime into metrics.
+     *
+     * @param arr     the array to sort (sorted in place)
+     * @param metrics a fresh Metrics object for this run
+     */
+    public static void sort(int[] arr, Metrics metrics) {
+        metrics.startTimer();
+
+        int n = arr.length;
+        for (int pass = 0; pass < n - 1; pass++) {
+            boolean swappedThisPass = false;
+
+            // After each pass, the largest remaining item has "bubbled"
+            // to the end, so the inner loop shrinks by one each time.
+            for (int j = 0; j < n - 1 - pass; j++) {
+                metrics.incrementComparisons();
+                if (arr[j] > arr[j + 1]) {
+                    int temp = arr[j];
+                    arr[j] = arr[j + 1];
+                    arr[j + 1] = temp;
+                    metrics.incrementSwaps();
+                    swappedThisPass = true;
+                }
+            }
+
+            // Nothing swapped means the array is already sorted —
+            // no point doing the remaining passes.
+            if (!swappedThisPass) {
+                break;
+            }
+        }
+
+        metrics.stopTimer();
+    }
+}
