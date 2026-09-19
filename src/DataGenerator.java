@@ -1,8 +1,18 @@
+import java.util.Random;
+
 /** P4: builds the test datasets. Same seed = same data for every algorithm. */
 public class DataGenerator {
-    /** Return n random ints (e.g. 0 to 999,999) using java.util.Random with the given seed. */
+
+    /** Return n random ints (0 to 999,999) using java.util.Random with the given seed. */
     public static int[] random(int n, long seed) {
-        // TODO (P4): replace this placeholder
-        return new int[n];
+
+        Random random = new Random(seed);
+        int[] data = new int[n];
+
+        for (int i = 0; i < n; i++) {
+            data[i] = random.nextInt(1_000_000);
+        }
+
+        return data;
     }
 }
