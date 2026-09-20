@@ -1,46 +1,113 @@
 /**
- * Shared performance counters. EVERY sort must use this class so results are comparable.
+ * Metrics.java
  *
- * How to use inside a sort:
- *   m.greater(a, b) / m.less(a, b)  -> compares two values AND counts 1 comparison
- *   m.swap(arr, i, j)               -> swaps two elements AND counts 1 swap
- *   m.move()                        -> count 1 movement (Insertion Sort shifts, not swaps)
- *   m.countExtra()                  -> algorithm-specific metric (Heap Sort: heapify calls)
+ * Shared by every sorting algorithm in this project (Heap, Bubble,
+ * Selection, Insertion). Each sort gets its own fresh Metrics object,
+ * counts every comparison and swap it makes, and times itself with
+ * this class so the final results table compares "like with like."
+ *
+ * Author: P2
+ *
+ * Usage inside a sort method:
+ *
+ *   Metrics metrics = new Metrics();
+ *   metrics.startTimer();
+ *   // ... sort the array, calling metrics.incrementComparisons()
+ *   // and metrics.incrementSwaps() at the right spots ...
+ *   metrics.stopTimer();
+ *   System.out.println(metrics);
  */
 public class Metrics {
-    private long comparisons = 0;
-    private long swaps = 0;
-    private long moves = 0;
-    private long extra = 0;
-    private long startNanos = 0;
-    private long elapsedNanos = 0;
 
-    public boolean greater(int a, int b) {
-        comparisons++;
-        return a > b;
+    private long comparisons;
+    private long swaps;
+    private long startTimeNanos;
+    private long endTimeNanos;
+    private boolean timerRunning;
+
+    public Metrics() {
+        reset();
     }
 
-    public boolean less(int a, int b) {
+    // ---- counting ----
+
+    /** Call this every time two elements are compared. */
+    public void incrementComparisons() {
         comparisons++;
-        return a < b;
     }
 
-    public void swap(int[] arr, int i, int j) {
+    /** Call this if you ever need to add more than one comparison at once. */
+    public void addComparisons(long count) {
+        comparisons += count;
+    }
+
+    /** Call this every time two elements are swapped / moved. */
+    public void incrementSwaps() {
         swaps++;
-        int temp = arr[i];
-        arr[i] = arr[j];
-        arr[j] = temp;
     }
 
-    public void move()       { moves++; }
-    public void countExtra() { extra++; }
+    /** Call this if you ever need to add more than one swap at once. */
+    public void addSwaps(long count) {
+        swaps += count;
+    }
 
-    public void startTimer() { startNanos = System.nanoTime(); }
-    public void stopTimer()  { elapsedNanos = System.nanoTime() - startNanos; }
+    // ---- timing ----
 
-    public long getComparisons() { return comparisons; }
-    public long getSwaps()       { return swaps; }
-    public long getMoves()       { return moves; }
-    public long getExtra()       { return extra; }
-    public double getRuntimeMs() { return elapsedNanos / 1_000_000.0; }
+    /** Start the stopwatch. Call this right before the sort begins. */
+    public void startTimer() {
+        startTimeNanos = System.nanoTime();
+        timerRunning = true;
+    }
+
+    /** Stop the stopwatch. Call this right after the sort finishes. */
+    public void stopTimer() {
+        endTimeNanos = System.nanoTime();
+        timerRunning = false;
+    }
+
+    // ---- reading the results ----
+
+    public long getComparisons() {
+        return comparisons;
+    }
+
+    public long getSwaps() {
+        return swaps;
+    }
+
+    /** Elapsed time in nanoseconds between startTimer() and stopTimer(). */
+    public long getRuntimeNanos() {
+        long end = timerRunning ? System.nanoTime() : endTimeNanos;
+        return end - startTimeNanos;
+    }
+
+    public double getRuntimeMillis() {
+        return getRuntimeNanos() / 1_000_000.0;
+    }
+
+    public double getRuntimeSeconds() {
+        return getRuntimeNanos() / 1_000_000_000.0;
+    }
+
+    /** Reset everything so the same object can be reused for a new run. */
+    public void reset() {
+        comparisons = 0;
+        swaps = 0;
+        startTimeNanos = 0;
+        endTimeNanos = 0;
+        timerRunning = false;
+    }
+
+    /** One tidy row, handy for printing straight into the results table. */
+    @Override
+    public String toString() {
+        return String.format(
+                "Comparisons: %,d | Swaps: %,d | Runtime: %.3f ms",
+                comparisons, swaps, getRuntimeMillis());
+    }
+
+    /** Same numbers as a comma-separated line, handy for dumping to a CSV. */
+    public String toCsvRow() {
+        return comparisons + "," + swaps + "," + getRuntimeMillis();
+    }
 }
