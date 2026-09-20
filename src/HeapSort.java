@@ -42,7 +42,7 @@ public class HeapSort implements Sorter {
             //if it does, is the left/right value greater than the largest value?
             // if yes, than the left/right value will turn into the largest value
             if (left < heapSize && m.greater(arr[left], arr[largest])) largest = left;
-            if (right < heapSize && m.greter(arr[right], arr[largest])) largest = right;
+            if (right < heapSize && m.greater(arr[right], arr[largest])) largest = right;
 
             //Decide
             //if parent is still the biggest, we're done
