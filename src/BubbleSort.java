@@ -17,18 +17,22 @@
  *
  * Author: P2
  */
-public class BubbleSort {
+public class BubbleSort implements Sorter {
+
+    @Override
+    public String name() { return "Bubble Sort"; }
+
+    @Override
+    public boolean isQuadratic() { return true; }
 
     /**
-     * Sorts arr in place (ascending) and records comparisons, swaps,
-     * and runtime into metrics.
+     * Sorts arr in place (ascending) and records comparisons and swaps.
      *
      * @param arr     the array to sort (sorted in place)
      * @param metrics a fresh Metrics object for this run
      */
-    public static void sort(int[] arr, Metrics metrics) {
-        metrics.startTimer();
-
+    @Override
+    public void sort(int[] arr, Metrics metrics) {
         int n = arr.length;
         for (int pass = 0; pass < n - 1; pass++) {
             boolean swappedThisPass = false;
@@ -52,7 +56,5 @@ public class BubbleSort {
                 break;
             }
         }
-
-        metrics.stopTimer();
     }
 }

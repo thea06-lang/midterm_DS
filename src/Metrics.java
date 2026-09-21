@@ -21,12 +21,20 @@ public class Metrics {
 
     private long comparisons;
     private long swaps;
+    private long moves;
+    private long extra;
     private long startTimeNanos;
     private long endTimeNanos;
     private boolean timerRunning;
 
     public Metrics() {
-        reset();
+        comparisons = 0;
+        swaps = 0;
+        moves = 0;
+        extra = 0;
+        startTimeNanos = 0;
+        endTimeNanos = 0;
+        timerRunning = false;
     }
 
     // ---- counting ----
@@ -49,6 +57,36 @@ public class Metrics {
     /** Call this if you ever need to add more than one swap at once. */
     public void addSwaps(long count) {
         swaps += count;
+    }
+
+    /** Compare two values and count the comparison. */
+    public boolean less(int left, int right) {
+        comparisons++;
+        return left < right;
+    }
+
+    /** Compare two values and count the comparison. */
+    public boolean greater(int left, int right) {
+        comparisons++;
+        return left > right;
+    }
+
+    /** Swap two array elements and count one swap. */
+    public void swap(int[] array, int first, int second) {
+        int temporary = array[first];
+        array[first] = array[second];
+        array[second] = temporary;
+        swaps++;
+    }
+
+    /** Count one element shift performed by insertion sort. */
+    public void move() {
+        moves++;
+    }
+
+    /** Count one algorithm-specific operation, such as a heapify call. */
+    public void countExtra() {
+        extra++;
     }
 
     // ---- timing ----
@@ -75,6 +113,14 @@ public class Metrics {
         return swaps;
     }
 
+    public long getMoves() {
+        return moves;
+    }
+
+    public long getExtra() {
+        return extra;
+    }
+
     /** Elapsed time in nanoseconds between startTimer() and stopTimer(). */
     public long getRuntimeNanos() {
         long end = timerRunning ? System.nanoTime() : endTimeNanos;
@@ -85,6 +131,11 @@ public class Metrics {
         return getRuntimeNanos() / 1_000_000.0;
     }
 
+    /** Short alias used by the results table. */
+    public double getRuntimeMs() {
+        return getRuntimeMillis();
+    }
+
     public double getRuntimeSeconds() {
         return getRuntimeNanos() / 1_000_000_000.0;
     }
@@ -93,6 +144,8 @@ public class Metrics {
     public void reset() {
         comparisons = 0;
         swaps = 0;
+        moves = 0;
+        extra = 0;
         startTimeNanos = 0;
         endTimeNanos = 0;
         timerRunning = false;
